@@ -2,6 +2,9 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import MainView from '../views/MainView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
+import PersonBlog from '../views/PersonBlog.vue'
+import TestView from '../views/TestView.vue'
+import NoticeView from '../views/NoticeView.vue'
 const routes = [
   {
     path: '/',
@@ -30,7 +33,37 @@ const routes = [
     path: '/register',
     name: 'register',
     component: RegisterView
-  }
+  },
+  {
+    path: '/person',
+    name: 'person',
+    component: PersonBlog
+  },
+  {
+    path: '/test',
+    name: 'test',
+    component: TestView
+  },
+  {
+    path: '/notice',
+    name: 'notice',
+    component: NoticeView
+  },
+  {
+    path: '/favorite',
+    name: 'favorite',
+    component: () => import(/* webpackChunkName: "about" */ '../views/FavoriteView.vue')
+  },
+  {
+    path: '/manageUser',
+    name: 'manageUser',
+    component: () => import(/* webpackChunkName: "about" */ '../views/ManageUser.vue')
+  },
+  {
+    path: '/manageLabel',
+    name: 'manageLabel',
+    component: () => import(/* webpackChunkName: "about" */ '../views/ManageLabel.vue')
+  },
 ]
 
 const router = createRouter({
