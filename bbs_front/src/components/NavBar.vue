@@ -17,7 +17,7 @@
               <template #title>管理页面</template>
               <el-menu-item index="2-1" @click="goToManageLabel">类别管理</el-menu-item>
               <el-menu-item index="2-2" @click="goToManageAlbum">相册管理</el-menu-item>
-              <el-menu-item index="2-3" @click="goToManageUser">用户管理</el-menu-item>
+              <!-- <el-menu-item index="2-3" @click="goToManageUser">用户管理</el-menu-item> -->
             </el-sub-menu>
             <!-- <el-menu-item index="2" v-if="currentUser.role == 'admin'" @click="goToManageAlbum">相册管理</el-menu-item> -->
             <el-menu-item index="3" @click="goToPerson">个人博客</el-menu-item>
@@ -30,11 +30,20 @@
               <div v-if="currentUser">{{ currentUser.name }}</div>
               <!-- <div v-if="currentUser">{{ currentUser.role }}</div> -->
             </el-menu-item>
+
+          <!-- 添加占位元素 -->
+          <div class="spacer"></div>
+
+          <!-- 右侧的“创建博客”按钮 -->
+          <el-menu-item class="create-blog-item" index="8" @click="goToCreateBlog">
+            创建博客
+          </el-menu-item>
           </el-menu>
         </el-header>
     
 
       </el-container>
+
     </div>
   </template>
   
@@ -63,7 +72,14 @@
     },
     methods: {
     handleSelect(index) {
+        console.log("索引改变" + index)
+        this.activeIndex2 = index
       this.$emit('update:activeIndex2', index);  // 触发事件将新的 activeIndex2 传递给父组件
+      console.log("当前索引" + this.activeIndex2)
+      
+    },
+    goToCreateBlog(){
+        this.$router.push("/add")
     },
       goToManageLabel(){
         this.$router.push("/manageLabel")
@@ -184,9 +200,19 @@
   margin-bottom: 10px;
 }
 
-.blog-description {
-  font-size: 1rem;
-  color: #555;
+.spacer {
+  flex-grow: 0.9; /* 占位元素，推送右侧的“创建博客”按钮 */
+}
+
+.create-blog-item {
+  background-color: #0c1b1b; /* 设置按钮背景颜色 */
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 5px;
+}
+
+.create-blog-item:hover {
+  background-color: #0c1b1b; /* 鼠标悬浮时的颜色 */
 }
 
 

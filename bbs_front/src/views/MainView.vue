@@ -1,7 +1,7 @@
 <template>
     <NavBar/>
     <div>
-        <h1>博客首页</h1>
+        <!-- <h1>博客首页</h1> -->
 
         <!-- 搜索框 -->
         <div class="search-container">
@@ -18,12 +18,9 @@
             <span class="tag">前端</span>
         </div>
 
-        <!-- 博客显示区域 -->
+        <!-- 博客显示区域
         <div class="blog-container">
             <div class="blog-item">
-            <div class="blog-cover">
-                <img src="https://via.placeholder.com/150" alt="封面" />
-            </div>
             <div class="blog-content">
                 <h2 class="blog-title">博客标题 1</h2>
                 <p class="blog-description">这是博客的简短内容，展示部分内容，可以点击阅读全文。</p>
@@ -31,9 +28,6 @@
             </div>
 
             <div class="blog-item">
-            <div class="blog-cover">
-                <img src="https://via.placeholder.com/150" alt="封面" />
-            </div>
             <div class="blog-content">
                 <h2 class="blog-title">博客标题 2</h2>
                 <p class="blog-description">这是博客的简短内容，展示部分内容，可以点击阅读全文。</p>
@@ -41,12 +35,25 @@
             </div>
 
             <div class="blog-item">
-            <div class="blog-cover">
-                <img src="https://via.placeholder.com/150" alt="封面" />
-            </div>
             <div class="blog-content">
                 <h2 class="blog-title">博客标题 3</h2>
                 <p class="blog-description">这是博客的简短内容，展示部分内容，可以点击阅读全文。</p>
+            </div>
+            </div>
+        </div> -->
+
+        <div class="blog-container">
+            <!-- 遍历 blogList 渲染每个博客 -->
+            <div v-for="(blog, index) in blogList" :key="index" class="blog-item">
+            <div class="blog-content">
+                <h2 class="blog-title">{{ blog.title }}</h2>
+                <p class="blog-description">{{ blog.content }}</p>
+                 <!-- 显示点赞数和收藏数 -->
+                <div class="blog-stats">
+                <span class="likes">点赞：{{ blog.thumbNum }} </span>
+                <span class="spacer"></span>  <!-- 添加一个空白间隔 -->
+                <span class="favorites">收藏：{{ blog.favourNum }} </span>
+                </div>
             </div>
             </div>
         </div>
@@ -55,12 +62,37 @@
   
   <script>
     import NavBar from '@/components/NavBar.vue'; // 引入NavBar组件
-  
+    import axios from 'axios';
   export default {
     name: 'HomePage', // 组件名称
     components: {
       NavBar // 注册NavBar组件
-    }
+    },
+    data() {
+    return {
+      blogList: [], // 存储从后端获取的博客数据
+    };
+    },
+    mounted() {
+        // 页面加载完成后获取博客数据
+        this.fetchBlogData();
+    },
+    methods: {
+        // 获取博客数据的方法
+        fetchBlogData() {
+        axios.get('http://localhost:8101/api/post/get/all') 
+            .then(response => {
+                console.log(response)
+            if (response.data.code == 0) {
+                this.blogList = response.data.data;  // 将数据赋值给 blogList
+                console.log(this.blogList)
+            }
+            })
+            .catch(error => {
+            console.error('获取博客数据失败', error);
+            });
+        },
+    },
   };
   </script>
   
@@ -153,6 +185,19 @@
 .blog-description {
   font-size: 1rem;
   color: #555;
+}
+.blog-stats {
+  margin-top: 10px;
+  font-size: 0.9em;
+  color: #888;
+}
+
+.blog-stats .likes {
+  margin-right: 10px;  /* 在点赞和收藏之间添加间距 */
+}
+
+.blog-stats .favorites {
+  margin-left: 10px;  /* 在收藏和右边内容之间添加间距 */
 }
 
 

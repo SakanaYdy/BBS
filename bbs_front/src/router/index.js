@@ -55,15 +55,20 @@ const routes = [
     component: () => import(/* webpackChunkName: "about" */ '../views/FavoriteView.vue')
   },
   {
-    path: '/manageUser',
-    name: 'manageUser',
-    component: () => import(/* webpackChunkName: "about" */ '../views/ManageUser.vue')
-  },
-  {
     path: '/manageLabel',
     name: 'manageLabel',
     component: () => import(/* webpackChunkName: "about" */ '../views/ManageLabel.vue')
   },
+  {
+    path: '/manage',
+    name: 'manage',
+    component: () => import(/* webpackChunkName: "about" */ '../views/ManageView.vue')
+  },
+  {
+    path: '/add',
+    name: 'add',
+    component: () => import(/* webpackChunkName: "about" */ '../views/AddBlog.vue')
+  }
 ]
 
 const router = createRouter({

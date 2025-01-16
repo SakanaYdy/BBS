@@ -19,6 +19,8 @@ import com.yupi.springbootinit.model.entity.User;
 import com.yupi.springbootinit.model.vo.PostVO;
 import com.yupi.springbootinit.service.PostService;
 import com.yupi.springbootinit.service.UserService;
+
+import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -67,8 +69,9 @@ public class PostController {
             post.setTags(JSONUtil.toJsonStr(tags));
         }
         postService.validPost(post, true);
-        User loginUser = userService.getLoginUser(request);
-        post.setUserId(loginUser.getId());
+//        User loginUser = userService.getLoginUser(request);
+//        post.setUserId(loginUser.getId());
+        post.setUserId(1L);
         post.setFavourNum(0);
         post.setThumbNum(0);
         boolean result = postService.save(post);
@@ -146,6 +149,26 @@ public class PostController {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
         return ResultUtils.success(postService.getPostVO(post, request));
+    }
+
+    /**
+     * 全部获取帖子
+     *
+     * @return
+     */
+    @GetMapping("/get/all")
+    public BaseResponse<List<PostVO>> getPostVO(HttpServletRequest request) {
+        List<Post> post = postService.list();
+        if (post == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+        List<PostVO> ans = new ArrayList<>();
+
+        for (Post p : post) {
+            ans.add(postService.getPostVO(p, request));
+        }
+
+        return ResultUtils.success(ans);
     }
 
     /**

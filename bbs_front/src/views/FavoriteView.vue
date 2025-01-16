@@ -1,5 +1,8 @@
 <template>
-  <NavBar v-model:activeIndex2="activeIndex2" />
+  <!-- <NavBar v-model:activeIndex2="activeIndex2" :index = "activeIndex2" /> -->
+
+  <NavBar/>
+
   <div>
     个人收藏页面
   </div>
@@ -9,7 +12,7 @@
 import NavBar from '@/components/NavBar.vue'; // 引入NavBar组件
   
   export default {
-    name: 'HomePage', // 组件名称
+    name: 'FavoriteView', // 组件名称
     components: {
       NavBar // 注册NavBar组件
     },

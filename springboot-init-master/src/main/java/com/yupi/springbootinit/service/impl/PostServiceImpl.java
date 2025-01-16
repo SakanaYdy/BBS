@@ -304,6 +304,11 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         return postVOPage;
     }
 
+    @Override
+    public Post getAll() {
+        return null;
+    }
+
 }
 
 

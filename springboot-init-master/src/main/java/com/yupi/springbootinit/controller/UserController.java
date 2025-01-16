@@ -15,9 +15,11 @@ import com.yupi.springbootinit.model.dto.user.UserQueryRequest;
 import com.yupi.springbootinit.model.dto.user.UserRegisterRequest;
 import com.yupi.springbootinit.model.dto.user.UserUpdateMyRequest;
 import com.yupi.springbootinit.model.dto.user.UserUpdateRequest;
+import com.yupi.springbootinit.model.entity.Label;
 import com.yupi.springbootinit.model.entity.User;
 import com.yupi.springbootinit.model.vo.LoginUserVO;
 import com.yupi.springbootinit.model.vo.UserVO;
+import com.yupi.springbootinit.service.LabelService;
 import com.yupi.springbootinit.service.UserService;
 
 import java.util.List;
@@ -51,6 +53,10 @@ public class UserController {
 
     @Resource
     private UserService userService;
+
+
+    @Resource
+    private LabelService labelService;
 
 
     // region 登录相关
@@ -287,5 +293,31 @@ public class UserController {
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
+    }
+
+    /**
+     * 修改类别状态
+     * @param labelName
+     * @return
+     */
+    @PostMapping("/changeLabel")
+    public BaseResponse<String> changeLabel(@RequestParam String labelName){
+        log.info("修改label状态:"  + labelName);
+        return labelService.changeLabel(labelName);
+    }
+
+    @PostMapping("/addLabel")
+    public BaseResponse<Label> addLabel(@RequestParam String labelName){
+        log.info("新建label:" + labelName);
+        return labelService.addLabel(labelName);
+    }
+
+    /**
+     * 获取到所有的类别
+     * @return
+     */
+    @GetMapping("/get/labels")
+    public BaseResponse<List<Label>> getLabels(){
+        return labelService.getAllLabel();
     }
 }
