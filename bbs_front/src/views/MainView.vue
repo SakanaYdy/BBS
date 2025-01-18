@@ -56,12 +56,12 @@
           <!-- 评论输入框 -->
           <div class="comment-box">
             <input type="text" v-model="newComment" placeholder="请输入评论..." class="comment-input" />
-            <button @click="submitComment" class="comment-submit-btn">提交</button>
+            <button @click="submitComment(selectedBlog.postVO.id)" class="comment-submit-btn">提交</button>
           </div>
 
           <h4>之前的评论:</h4>
           <el-card v-for="(prevComment, index) in selectedBlog.comments" :key="index" class="comment-card">
-            <div><strong>{{ prevComment.userId }}:</strong> {{ prevComment.comment }}</div>
+            <div><strong>{{ prevComment.username }}:</strong> {{ prevComment.comment }}</div>
           </el-card>
 
         </div>
@@ -90,6 +90,7 @@ export default {
       newComment: '', // 存储新评论的内容
       isLiked: false, // 点赞状态
       isFavorited: false, // 收藏状态
+      comments: []  // 村村选中blog的评论
     };
   },
   mounted() {
@@ -109,8 +110,14 @@ export default {
         .then(response => {
           if (response.data.code == 0) {
             this.blogList = response.data.data;  // 将数据赋值给 blogList
-            console.log(response.data)
-            console.log(this.blogList)
+            // console.log(response.data)
+            // console.log(this.blogList)
+            if (this.selectedBlog) {
+              const updatedBlog = this.blogList.find(blog => blog.id === this.selectedBlog.id);
+              if (updatedBlog) {
+                this.selectedBlog = updatedBlog;  // 更新弹窗中的博客数据
+              }
+            }
           }
         })
         .catch(error => {
@@ -153,6 +160,8 @@ export default {
             .catch(error => {
                 console.error('发送请求失败', error);
             });
+
+            this.fetchBlogData()      
     },
 
     // 切换收藏状态
@@ -175,37 +184,52 @@ export default {
             .catch(error => {
                 console.error('收藏请求失败', error);
             });
+
+      this.fetchBlogData()
     },
 
     // 提交评论
-    submitComment() {
+    submitComment(blogId) {
       if (!this.newComment.trim()) {
         alert('评论内容不能为空');
         return;
       }
+      
+      console.log("评论内容:" + this.newComment)
 
       const newCommentData = {
-        username: '用户', // 假设用户名为 '用户'，可以替换为实际的用户名
-        content: this.newComment.trim(),
+        username: this.currentUser.userName, // 假设用户名为 '用户'，可以替换为实际的用户名
+        comment: this.newComment
       };
-
+      
+      console.log(newCommentData)
       // 将新的评论添加到评论列表
       this.selectedBlog.comments.push(newCommentData);
-
+      console.log(this.selectedBlog.comments)
+      const requestBody = {
+        blogId: blogId,
+        userId: this.currentUser.id,
+        comment: this.newComment
+      }
       // 清空输入框
       this.newComment = '';
+      console.log(requestBody)
 
       // 可根据需求，发送评论数据到后端保存
-      // axios.post('http://localhost:8101/api/post/comment', {
-      //   postId: this.selectedBlog.id,
-      //   comment: newCommentData
-      // })
-      // .then(response => {
-      //   console.log('评论提交成功');
-      // })
-      // .catch(error => {
-      //   console.error('评论提交失败', error);
-      // });
+      axios.post('http://localhost:8101/api/comment/add',requestBody)
+      .then(response => {
+        if (response.data.code === 0) {
+                console.log('评论添加成功', response.data);
+                // 可以根据需要做后续操作，如跳转到博客列表页等
+                this.fetchBlogData();
+                } else {
+                console.error('收藏更新失败：', response.data.message);
+                }
+        // console.log('评论提交成功');
+      })
+      .catch(error => {
+        console.error('评论提交失败', error);
+      });
     }
   }
 };

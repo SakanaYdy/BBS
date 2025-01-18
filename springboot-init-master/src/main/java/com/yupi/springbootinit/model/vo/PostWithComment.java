@@ -1,6 +1,6 @@
 package com.yupi.springbootinit.model.vo;
 
-import com.yupi.springbootinit.model.entity.Comment;
+import com.yupi.springbootinit.model.entity.CommentUser;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,7 +13,7 @@ public class PostWithComment {
 
     private PostVO postVO;
 
-    private List<Comment> comments;
+    private List<CommentUser> comments;
 
 
 }

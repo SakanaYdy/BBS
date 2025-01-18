@@ -31,7 +31,7 @@ public class Comment implements Serializable {
     /**
      * 
      */
-    private String comment;
+        private String comment;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

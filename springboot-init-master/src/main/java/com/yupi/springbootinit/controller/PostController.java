@@ -12,11 +12,13 @@ import com.yupi.springbootinit.constant.UserConstant;
 import com.yupi.springbootinit.exception.BusinessException;
 import com.yupi.springbootinit.exception.ThrowUtils;
 import com.yupi.springbootinit.mapper.CommentMapper;
+import com.yupi.springbootinit.mapper.UserMapper;
 import com.yupi.springbootinit.model.dto.post.PostAddRequest;
 import com.yupi.springbootinit.model.dto.post.PostEditRequest;
 import com.yupi.springbootinit.model.dto.post.PostQueryRequest;
 import com.yupi.springbootinit.model.dto.post.PostUpdateRequest;
 import com.yupi.springbootinit.model.entity.Comment;
+import com.yupi.springbootinit.model.entity.CommentUser;
 import com.yupi.springbootinit.model.entity.Post;
 import com.yupi.springbootinit.model.entity.User;
 import com.yupi.springbootinit.model.vo.PostVO;
@@ -54,6 +56,9 @@ public class PostController {
 
     @Resource
     private CommentMapper commentMapper;
+
+    @Resource
+    private UserMapper userMapper;
 
     // region 增删改查
 
@@ -183,7 +188,19 @@ public class PostController {
             queryWrapper.eq("blogId", p.getId());
             List<Comment> comments = commentMapper.selectList(queryWrapper);
 
-            PostWithComment postWithComment = new PostWithComment(postService.getPostVO(userId,p, request), comments);
+            List<CommentUser> commentUsers = new ArrayList<>();
+            for(var c : comments){
+                CommentUser commentUser = new CommentUser();
+                BeanUtils.copyProperties(c,commentUser);
+                commentUsers.add(commentUser);
+
+                int id = c.getUserId();
+                User user = userMapper.selectById(id);
+
+                commentUser.setUsername(user.getUserAccount());
+            }
+
+            PostWithComment postWithComment = new PostWithComment(postService.getPostVO(userId,p, request), commentUsers);
             ans.add(postWithComment);
         }
         return ResultUtils.success(ans);
