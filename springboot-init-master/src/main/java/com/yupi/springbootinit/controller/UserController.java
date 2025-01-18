@@ -100,6 +100,7 @@ public class UserController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         LoginUserVO loginUserVO = userService.userLogin(userAccount, userPassword, request);
+        loginUserVO.setUserName(userAccount);
         return ResultUtils.success(loginUserVO);
     }
 

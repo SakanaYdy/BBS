@@ -15,8 +15,8 @@
             <!-- <el-sub-menu index="2" v-if="currentUser.role == 'admin'"> -->
             <el-sub-menu index="2">
               <template #title>管理页面</template>
-              <el-menu-item index="2-1" @click="goToManageLabel">类别管理</el-menu-item>
-              <el-menu-item index="2-2" @click="goToManageAlbum">相册管理</el-menu-item>
+              <el-menu-item index="2-1" @click="goToManageLabel">板块管理</el-menu-item>
+              <el-menu-item index="2-2" @click="goToManageAlbum">帖子管理</el-menu-item>
               <!-- <el-menu-item index="2-3" @click="goToManageUser">用户管理</el-menu-item> -->
             </el-sub-menu>
             <!-- <el-menu-item index="2" v-if="currentUser.role == 'admin'" @click="goToManageAlbum">相册管理</el-menu-item> -->
@@ -27,7 +27,7 @@
             </el-menu-item>
             <el-menu-item index="6" @click="goToFav">收藏</el-menu-item>
             <el-menu-item index="7" @click="goToInfo">
-              <div v-if="currentUser">{{ currentUser.name }}</div>
+              <div v-if="currentUser">{{ currentUser.userName }}</div>
               <!-- <div v-if="currentUser">{{ currentUser.role }}</div> -->
             </el-menu-item>
 

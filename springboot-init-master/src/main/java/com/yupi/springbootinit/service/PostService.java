@@ -7,6 +7,7 @@ import com.yupi.springbootinit.model.dto.post.PostQueryRequest;
 import com.yupi.springbootinit.model.entity.Post;
 import com.yupi.springbootinit.model.vo.PostVO;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * 帖子服务
@@ -46,7 +47,7 @@ public interface PostService extends IService<Post> {
      * @param request
      * @return
      */
-    PostVO getPostVO(Post post, HttpServletRequest request);
+    PostVO getPostVO(long id,Post post, HttpServletRequest request);
 
     /**
      * 分页获取帖子封装
@@ -57,6 +58,7 @@ public interface PostService extends IService<Post> {
      */
     Page<PostVO> getPostVOPage(Page<Post> postPage, HttpServletRequest request);
 
-    Post getAll();
+//    Post getAll();
 
+    List<Post> getByUserId(long id);
 }

@@ -4,10 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.yupi.springbootinit.common.BaseResponse;
 import com.yupi.springbootinit.model.entity.Post;
 import com.yupi.springbootinit.model.entity.PostFavour;
 import com.yupi.springbootinit.model.entity.User;
-
+import com.yupi.springbootinit.model.vo.PostVO;
+import java.util.*;
 /**
  * 帖子收藏服务
  *
@@ -43,4 +45,6 @@ public interface PostFavourService extends IService<PostFavour> {
      * @return
      */
     int doPostFavourInner(long userId, long postId);
+
+    BaseResponse<List<Post>> getUserFav(Long userId);
 }

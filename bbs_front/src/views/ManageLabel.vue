@@ -39,7 +39,7 @@
         ...mapState(['currentUser']), // 映射 Vuex 中的 currentUser
       },
       mounted() {
-        //this.fetchLabels(); // 组件挂载时获取用户信息
+        this.fetchLabels(); // 组件挂载时获取用户信息
         
     },
     data() {
@@ -72,15 +72,15 @@
     },
         async fetchLabels() {
             try {
-                const response = await axios.get('http://localhost:8085/admin/label'); // 向后端发送请求
+                const response = await axios.get('http://localhost:8101/api/user/get/labels'); // 向后端发送请求
                 if (response.data.code === 0) {
                     this.labels = response.data.data; // 更新相册数据
                 } else {
-                this.$message.error(`获取用户列表失败: ${response.data.msg}`);
+                this.$message.error(`获取板块列表失败: ${response.data.msg}`);
                 }
             } catch (error) {
                 console.error(error);
-                this.$message.error('获取用户列表失败');
+                this.$message.error('获取板块列表失败');
             }
         },
         handleClick(row) {

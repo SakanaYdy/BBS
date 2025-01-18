@@ -5,18 +5,25 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.yupi.springbootinit.common.BaseResponse;
 import com.yupi.springbootinit.common.ErrorCode;
+import com.yupi.springbootinit.common.ResultUtils;
 import com.yupi.springbootinit.exception.BusinessException;
 import com.yupi.springbootinit.mapper.PostFavourMapper;
+import com.yupi.springbootinit.mapper.PostMapper;
 import com.yupi.springbootinit.model.entity.Post;
 import com.yupi.springbootinit.model.entity.PostFavour;
 import com.yupi.springbootinit.model.entity.User;
+import com.yupi.springbootinit.model.vo.PostVO;
 import com.yupi.springbootinit.service.PostFavourService;
 import com.yupi.springbootinit.service.PostService;
 import javax.annotation.Resource;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 帖子收藏服务实现
@@ -29,6 +36,13 @@ public class PostFavourServiceImpl extends ServiceImpl<PostFavourMapper, PostFav
 
     @Resource
     private PostService postService;
+
+
+    @Resource
+    private PostMapper postMapper;
+
+    @Resource
+    private PostFavourMapper favourMapper;
 
     /**
      * 帖子收藏
@@ -106,6 +120,29 @@ public class PostFavourServiceImpl extends ServiceImpl<PostFavourMapper, PostFav
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR);
             }
         }
+    }
+
+    /**
+     * 获取用户收藏的列表
+     * @param userId
+     * @return
+     */
+    @Override
+    public BaseResponse<List<Post>> getUserFav(Long userId) {
+
+        QueryWrapper<PostFavour> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("userId",userId);
+
+        List<PostFavour> list = favourMapper.selectList(queryWrapper);
+
+        List<Post> ans = new ArrayList<>();
+        for(var p : list){
+            var id = p.getPostId();
+            QueryWrapper<Post> queryWrapper1 = new QueryWrapper<>();
+            queryWrapper1.eq("id",id);
+            ans.add(postMapper.selectOne(queryWrapper1));
+        }
+        return ResultUtils.success(ans);
     }
 
 }

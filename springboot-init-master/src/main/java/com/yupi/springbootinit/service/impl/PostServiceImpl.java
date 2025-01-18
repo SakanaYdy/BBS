@@ -65,6 +65,9 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
     private PostFavourMapper postFavourMapper;
 
     @Resource
+    private PostMapper postMapper;
+
+    @Resource
     private ElasticsearchRestTemplate elasticsearchRestTemplate;
 
     @Override
@@ -226,7 +229,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
     }
 
     @Override
-    public PostVO getPostVO(Post post, HttpServletRequest request) {
+    public PostVO getPostVO(long id,Post post, HttpServletRequest request) {
         PostVO postVO = PostVO.objToVo(post);
         long postId = post.getId();
         // 1. 关联查询用户信息
@@ -238,21 +241,21 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         UserVO userVO = userService.getUserVO(user);
         postVO.setUser(userVO);
         // 2. 已登录，获取用户点赞、收藏状态
-        User loginUser = userService.getLoginUserPermitNull(request);
-        if (loginUser != null) {
-            // 获取点赞
-            QueryWrapper<PostThumb> postThumbQueryWrapper = new QueryWrapper<>();
-            postThumbQueryWrapper.in("postId", postId);
-            postThumbQueryWrapper.eq("userId", loginUser.getId());
-            PostThumb postThumb = postThumbMapper.selectOne(postThumbQueryWrapper);
-            postVO.setHasThumb(postThumb != null);
-            // 获取收藏
-            QueryWrapper<PostFavour> postFavourQueryWrapper = new QueryWrapper<>();
-            postFavourQueryWrapper.in("postId", postId);
-            postFavourQueryWrapper.eq("userId", loginUser.getId());
-            PostFavour postFavour = postFavourMapper.selectOne(postFavourQueryWrapper);
-            postVO.setHasFavour(postFavour != null);
-        }
+        // User loginUser = userService.getLoginUserPermitNull(request);
+        User loginUser = new User();
+        loginUser.setId(id);
+        // 获取点赞
+        QueryWrapper<PostThumb> postThumbQueryWrapper = new QueryWrapper<>();
+        postThumbQueryWrapper.in("postId", postId);
+        postThumbQueryWrapper.eq("userId", loginUser.getId());
+        PostThumb postThumb = postThumbMapper.selectOne(postThumbQueryWrapper);
+        postVO.setHasThumb(postThumb != null);
+        // 获取收藏
+        QueryWrapper<PostFavour> postFavourQueryWrapper = new QueryWrapper<>();
+        postFavourQueryWrapper.in("postId", postId);
+        postFavourQueryWrapper.eq("userId", loginUser.getId());
+        PostFavour postFavour = postFavourMapper.selectOne(postFavourQueryWrapper);
+        postVO.setHasFavour(postFavour != null);
         return postVO;
     }
 
@@ -304,10 +307,22 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         return postVOPage;
     }
 
+    /**
+     * 根据用户id 获取 帖子
+     * @param id
+     * @return
+     */
     @Override
-    public Post getAll() {
-        return null;
+    public List<Post> getByUserId(long id) {
+        Long userId = id;
+
+        QueryWrapper<Post> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("userId",userId);
+        List<Post> posts = postMapper.selectList(queryWrapper);
+
+        return posts;
     }
+
 
 }
 

@@ -18,10 +18,9 @@ import com.yupi.springbootinit.service.UserService;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.*;
 
 /**
  * 帖子收藏接口
@@ -56,9 +55,14 @@ public class PostFavourController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         // 登录才能操作
-        final User loginUser = userService.getLoginUser(request);
+        // final User loginUser = userService.getLoginUser(request);
+
+        Long userId = postFavourAddRequest.getUserId();
+        User user = new User();
+        user.setId(userId);
+
         long postId = postFavourAddRequest.getPostId();
-        int result = postFavourService.doPostFavour(postId, loginUser);
+        int result = postFavourService.doPostFavour(postId, user);
         return ResultUtils.success(result);
     }
 
@@ -105,4 +109,13 @@ public class PostFavourController {
                 postService.getQueryWrapper(postFavourQueryRequest.getPostQueryRequest()), userId);
         return ResultUtils.success(postService.getPostVOPage(postPage, request));
     }
+
+    @GetMapping("/list/fav")
+    public BaseResponse<List<Post>> listFavourPost(long userId,
+                                                           HttpServletRequest request) {
+
+        return postFavourService.getUserFav(userId);
+
+    }
+
 }

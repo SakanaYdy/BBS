@@ -1,6 +1,7 @@
 package com.yupi.springbootinit.controller;
 
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yupi.springbootinit.annotation.AuthCheck;
 import com.yupi.springbootinit.common.BaseResponse;
@@ -10,13 +11,16 @@ import com.yupi.springbootinit.common.ResultUtils;
 import com.yupi.springbootinit.constant.UserConstant;
 import com.yupi.springbootinit.exception.BusinessException;
 import com.yupi.springbootinit.exception.ThrowUtils;
+import com.yupi.springbootinit.mapper.CommentMapper;
 import com.yupi.springbootinit.model.dto.post.PostAddRequest;
 import com.yupi.springbootinit.model.dto.post.PostEditRequest;
 import com.yupi.springbootinit.model.dto.post.PostQueryRequest;
 import com.yupi.springbootinit.model.dto.post.PostUpdateRequest;
+import com.yupi.springbootinit.model.entity.Comment;
 import com.yupi.springbootinit.model.entity.Post;
 import com.yupi.springbootinit.model.entity.User;
 import com.yupi.springbootinit.model.vo.PostVO;
+import com.yupi.springbootinit.model.vo.PostWithComment;
 import com.yupi.springbootinit.service.PostService;
 import com.yupi.springbootinit.service.UserService;
 
@@ -47,6 +51,9 @@ public class PostController {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private CommentMapper commentMapper;
 
     // region 增删改查
 
@@ -134,21 +141,28 @@ public class PostController {
     }
 
     /**
-     * 根据 id 获取
+     * 根据用户 id 获取
      *
      * @param id
      * @return
      */
     @GetMapping("/get/vo")
-    public BaseResponse<PostVO> getPostVOById(long id, HttpServletRequest request) {
+    public BaseResponse<List<PostVO>> getPostVOById(long id, HttpServletRequest request) {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        Post post = postService.getById(id);
+
+        List<Post> post = postService.getByUserId(id);
         if (post == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
-        return ResultUtils.success(postService.getPostVO(post, request));
+        List<PostVO> ans = new ArrayList<>();
+
+        for (Post p : post) {
+            ans.add(postService.getPostVO(id,p, request));
+        }
+
+        return ResultUtils.success(ans);
     }
 
     /**
@@ -157,17 +171,21 @@ public class PostController {
      * @return
      */
     @GetMapping("/get/all")
-    public BaseResponse<List<PostVO>> getPostVO(HttpServletRequest request) {
+    public BaseResponse<List<PostWithComment>> getPostVO(long userId,HttpServletRequest request) {
         List<Post> post = postService.list();
         if (post == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
-        List<PostVO> ans = new ArrayList<>();
+        List<PostWithComment> ans = new ArrayList<>();
 
         for (Post p : post) {
-            ans.add(postService.getPostVO(p, request));
-        }
+            QueryWrapper<Comment> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("blogId", p.getId());
+            List<Comment> comments = commentMapper.selectList(queryWrapper);
 
+            PostWithComment postWithComment = new PostWithComment(postService.getPostVO(userId,p, request), comments);
+            ans.add(postWithComment);
+        }
         return ResultUtils.success(ans);
     }
 
