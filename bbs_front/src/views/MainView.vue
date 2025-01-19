@@ -5,19 +5,30 @@
 
     <!-- 搜索框 -->
     <div class="search-container">
-      <input type="text" class="search-input" placeholder="请输入搜索关键词">
-      <button class="search-btn">搜索</button>
-    </div>
+    <input 
+      type="text" 
+      class="search-input" 
+      placeholder="请输入搜索关键词"
+      v-model="searchKeyword" 
+    >
+    <button 
+      class="search-btn"
+      @click="searchByTag()" 
+    >
+      搜索
+    </button>
+  </div>
 
-    <!-- 标签 -->
     <div class="tags-container">
-      <span class="tag">Java</span>
-      <span class="tag">机器学习</span>
-      <span class="tag">深度学习</span>
-      <span class="tag">Python</span>
-      <span class="tag">前端</span>
+      <el-card 
+        v-for="(tag, index) in tagList" 
+        :key="index" 
+        class="comment-card"
+        @click="searchByTag(tag.labelName)"
+      >
+        <span class="tag">{{ tag.labelName }}</span>
+      </el-card>
     </div>
-
     <!-- 博客列表 -->
     <div class="blog-container">
       <!-- 遍历 blogList 渲染每个博客 -->
@@ -84,22 +95,66 @@ export default {
   },
   data() {
     return {
+      tagList: [], // 存储板块信息
       blogList: [], // 存储从后端获取的博客数据
       showModal: false, // 控制弹窗的显示与隐藏
       selectedBlog: null, // 存储点击的博客数据
       newComment: '', // 存储新评论的内容
       isLiked: false, // 点赞状态
       isFavorited: false, // 收藏状态
-      comments: []  // 村村选中blog的评论
+      comments: [],  // 选中blog的评论
+      searchKeyword: '', // 搜索关键词
     };
   },
   mounted() {
+    this.fetchLabels();
     this.fetchBlogData();
   },
   computed: {
       ...mapState(['currentUser']), // 映射 Vuex 中的 currentUser
     },
   methods: {
+     // 搜索
+    searchByTag(tagName) {
+      console.log('搜索标签:', tagName);
+      const requestBody = {
+          userId: this.currentUser.id,
+          content: this.searchKeyword,
+          tag: tagName, // 将标签作为搜索参数
+      }
+      console.log(requestBody)
+      // 调用后端 API 搜索帖子
+      axios.post('http://localhost:8101/api/post/search/vo', requestBody)
+        .then(response => {
+          if (response.data.code === 0) {
+            console.log('搜索成功', response.data.data);
+            // 将搜索结果保存到数据中
+            this.blogList = response.data.data;
+          } else {
+            console.error('搜索失败：', response.data.message);
+          }
+        })
+        .catch(error => {
+          console.error('搜索请求失败', error);
+        });
+    },
+    fetchLabels() {
+      try {
+        axios.get('http://localhost:8101/api/user/get/labels') 
+            .then(response => {
+                console.log(response)
+            if (response.data.code == 0) {
+                this.tagList = response.data.data;  // 将数据赋值给 blogList
+                console.log(this.tagList)
+            }
+            })
+            .catch(error => {
+            console.error('获取板块信息失败', error);
+            });
+      } catch (error) {
+        console.error('获取标签失败', error);
+      }
+    },
     // 获取博客数据的方法
     fetchBlogData() {
       axios.get('http://localhost:8101/api/post/get/all',{

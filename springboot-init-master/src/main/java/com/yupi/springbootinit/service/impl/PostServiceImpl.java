@@ -11,6 +11,7 @@ import com.yupi.springbootinit.mapper.PostFavourMapper;
 import com.yupi.springbootinit.mapper.PostMapper;
 import com.yupi.springbootinit.mapper.PostThumbMapper;
 import com.yupi.springbootinit.model.dto.post.PostEsDTO;
+import com.yupi.springbootinit.model.dto.post.PostQuery;
 import com.yupi.springbootinit.model.dto.post.PostQueryRequest;
 import com.yupi.springbootinit.model.entity.Post;
 import com.yupi.springbootinit.model.entity.PostFavour;
@@ -321,6 +322,19 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         List<Post> posts = postMapper.selectList(queryWrapper);
 
         return posts;
+    }
+
+    @Override
+    public List<Post> search(PostQuery postQuery) {
+        String content = postQuery.getContent();
+        String tag = postQuery.getTag();
+
+        QueryWrapper<Post> queryWrapper = new QueryWrapper<>();
+
+        if(content != null) queryWrapper.like("title",content);
+        if(tag != null) queryWrapper.like("tags",tag);
+
+        return postMapper.selectList(queryWrapper);
     }
 
 

@@ -13,10 +13,7 @@ import com.yupi.springbootinit.exception.BusinessException;
 import com.yupi.springbootinit.exception.ThrowUtils;
 import com.yupi.springbootinit.mapper.CommentMapper;
 import com.yupi.springbootinit.mapper.UserMapper;
-import com.yupi.springbootinit.model.dto.post.PostAddRequest;
-import com.yupi.springbootinit.model.dto.post.PostEditRequest;
-import com.yupi.springbootinit.model.dto.post.PostQueryRequest;
-import com.yupi.springbootinit.model.dto.post.PostUpdateRequest;
+import com.yupi.springbootinit.model.dto.post.*;
 import com.yupi.springbootinit.model.entity.Comment;
 import com.yupi.springbootinit.model.entity.CommentUser;
 import com.yupi.springbootinit.model.entity.Post;
@@ -101,18 +98,21 @@ public class PostController {
      */
     @PostMapping("/delete")
     public BaseResponse<Boolean> deletePost(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
+
+        System.out.println("*******删除帖子");
+
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User user = userService.getLoginUser(request);
+//        User user = userService.getLoginUser(request);
         long id = deleteRequest.getId();
         // 判断是否存在
         Post oldPost = postService.getById(id);
         ThrowUtils.throwIf(oldPost == null, ErrorCode.NOT_FOUND_ERROR);
         // 仅本人或管理员可删除
-        if (!oldPost.getUserId().equals(user.getId()) && !userService.isAdmin(request)) {
-            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
-        }
+//        if (!oldPost.getUserId().equals(user.getId()) && !userService.isAdmin(request)) {
+//            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+//        }
         boolean b = postService.removeById(id);
         return ResultUtils.success(b);
     }
@@ -282,6 +282,48 @@ public class PostController {
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
         Page<Post> postPage = postService.searchFromEs(postQueryRequest);
         return ResultUtils.success(postService.getPostVOPage(postPage, request));
+    }
+
+    /**
+     * 按照标签搜索 不分页
+     * @param request
+     * @return
+     */
+    @PostMapping("/search/vo")
+    public BaseResponse<List<PostWithComment>> searchPostVO(@RequestBody PostQuery postQuery,
+                                                            HttpServletRequest request) {
+
+       List<Post> post = postService.search(postQuery);
+
+        Long userId = postQuery.getUserId();
+
+        if (post == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+        List<PostWithComment> ans = new ArrayList<>();
+
+        for (Post p : post) {
+            QueryWrapper<Comment> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("blogId", p.getId());
+            List<Comment> comments = commentMapper.selectList(queryWrapper);
+
+            List<CommentUser> commentUsers = new ArrayList<>();
+            for(var c : comments){
+                CommentUser commentUser = new CommentUser();
+                BeanUtils.copyProperties(c,commentUser);
+                commentUsers.add(commentUser);
+
+                int id = c.getUserId();
+                User user = userMapper.selectById(id);
+
+                commentUser.setUsername(user.getUserAccount());
+            }
+
+            PostWithComment postWithComment = new PostWithComment(postService.getPostVO(userId,p, request), commentUsers);
+            ans.add(postWithComment);
+        }
+        return ResultUtils.success(ans);
+
     }
 
     /**
