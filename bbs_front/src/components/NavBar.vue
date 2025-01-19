@@ -22,7 +22,7 @@
             <!-- <el-menu-item index="2" v-if="currentUser.role == 'admin'" @click="goToManageAlbum">相册管理</el-menu-item> -->
             <el-menu-item index="3" @click="goToPerson">个人博客</el-menu-item>
             <el-menu-item index="4" @click="logout">登出</el-menu-item>
-            <el-menu-item index="5" @click="goToNOtice">
+            <el-menu-item index="5" v-if=false @click="goToNOtice">
               <el-icon><Bell />通知</el-icon>
             </el-menu-item>
             <el-menu-item index="6" @click="goToFav">收藏</el-menu-item>
@@ -40,8 +40,7 @@
           </el-menu-item>
           </el-menu>
         </el-header>
-    
-
+  
       </el-container>
 
     </div>
@@ -104,7 +103,7 @@
       },
       logout(){
         this.$store.dispatch('logout'); // 登出之后清除用户信息
-        this.$router.push("/")
+        this.$router.push("/login")
       },
       toHome() {
         this.$router.push("/main");
